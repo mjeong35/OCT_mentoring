@@ -1,27 +1,576 @@
-<!-- ... existing code ... -->
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PAOLA-1 타임라인 플래너</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-<!-- ... existing code ... -->
-        function App() {
-            // States
-            const [startDate, setStartDate] = useState(getTodayYYYYMMDD());
-<!-- ... existing code ... -->
-            return (
-                <div className="min-h-screen pb-20">
-                    {/* Header */}
-                    <header className="bg-brand-900 text-white p-5 shadow-md">
-                        <div className="max-w-4xl mx-auto flex flex-col gap-1">
-                            <span className="text-brand-100 text-xs font-bold uppercase tracking-widest"><i className="fa-regular fa-calendar mr-1"></i> PAOLA-1 Clinical Tool</span>
-                            <h1 className="text-2xl font-black">PAOLA-1 타임라인 플래너</h1>
-                            <p className="text-sm text-brand-50 opacity-90">PAOLA-1 CSR 데이터를 기반으로 수술 시점과 베바시주맙 병용 시점을 조합하여 유지요법 시작일을 예측합니다.</p>
-                        </div>
-                    </header>
+import React, { useState, useEffect } from 'react';
+import { Heart, Calendar, Users, MessageCircle, Camera, Mail, Info, CheckCircle2, Loader2, Image as ImageIcon, UserCircle2, CreditCard, Sparkles, MessageSquareHeart } from 'lucide-react';
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, collection, addDoc, onSnapshot } from 'firebase/firestore';
 
-                    <main className="max-w-4xl mx-auto px-4 mt-6">
-                        
-                        {/* Summary Card */}
-<!-- ... existing code ... -->
+// --- Firebase Initialization ---
+const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+// --- Data ---
+const matchings = [
+  { mentee: '장재우', menteeTeam: 'BC SM', job: 'MKT', mentor: '이하경', mentorTeam: 'GUGY' },
+  { mentee: '김가람', menteeTeam: 'GUGY', job: 'MKT', mentor: '한지수', mentorTeam: 'GI' },
+  { mentee: '김희정', menteeTeam: 'GU/BC', job: 'Admin', mentor: '이효선', mentorTeam: 'Admin' },
+  { mentee: '김미래', menteeTeam: 'GI', job: 'MR', mentor: '이승진', mentorTeam: 'LC IO' },
+  { mentee: '송현준', menteeTeam: 'GC', job: 'MR', mentor: '김영태', mentorTeam: 'GUGY' },
+  { mentee: '안승주', menteeTeam: 'LC', job: 'MR', mentor: '윤홍열', mentorTeam: 'BC ADC' },
+  { mentee: '이수진', menteeTeam: 'LC', job: 'MR', mentor: '이철오', mentorTeam: 'GUGY' },
+  { mentee: '조형진', menteeTeam: 'BC', job: 'MR', mentor: '권성환', mentorTeam: 'GUGY' },
+];
+
+const questionCategories = [
+  {
+    title: "신규 입사자 멘티",
+    subtitle: "업무 지식보다 '사회생활 적응' · '업무 루틴 만들기'가 핵심",
+    color: "bg-purple-50 border-purple-200 text-purple-900",
+    tagColor: "bg-purple-100 text-purple-700 border-purple-200",
+    questions: [
+      { tag: "첫인상 만들기", text: "첫 병원 방문 때, 너무 긴장하지 않고 자연스럽게 저를 소개하는 멘트가 있을까요?" },
+      { tag: "call 대화", text: "교수님과 call 할 때 주로 어떤 내용을 나누고, 관심과 니즈를 어떻게 파악하세요?" },
+      { tag: "시간 관리", text: "하루 일과를 어떻게 짜세요? 외근 때 남는 시간은 보통 어디서 보내시나요?" },
+      { tag: "용어 습득", text: "회의 때 모르는 용어가 많아 당황스러워요. 빨리 익히는 선배님만의 공부법이 있나요?" }
+    ]
+  },
+  {
+    title: "타 부서 전입 MR 멘티",
+    subtitle: "경력 MR → 항암제 신입 MR · 항암제 영업만의 노하우를 빠르게 익히는 것이 핵심",
+    color: "bg-blue-50 border-blue-200 text-blue-900",
+    tagColor: "bg-blue-100 text-blue-700 border-blue-200",
+    questions: [
+      { tag: "영업 스타일 전환", text: "기존 부서 대비, 교수님이 MR에게 기대하는 '전문성의 깊이'는 어느 정도세요?" },
+      { tag: "데이터 활용법", text: "임상 데이터가 많은데, 짧은 면담에서 가장 '꽂히는' 데이터 위주로 전달하는 요령이 있나요?" },
+      { tag: "병원 시스템", text: "처방 외에 약제과·간호팀 등 협력 부서와의 접점은 어떻게 만드세요?" }
+    ]
+  },
+  {
+    title: "신규 MKT 멘티",
+    subtitle: "High-performing marketer의 operational know-how를 빠르게 캐치하는 것이 핵심",
+    color: "bg-emerald-50 border-emerald-200 text-emerald-900",
+    tagColor: "bg-emerald-100 text-emerald-700 border-emerald-200",
+    questions: [
+      { tag: "System & Workflow", text: "AZ에서 활용하는 공식 tool은? (예: AZ Chat, V4Cast)" },
+      { tag: "Ways of Working", text: "공식 프로세스(RBU/MTP 등)는 무엇이 있고, 어떤 점을 주의해야 하나요?" },
+      { tag: "Stakeholder Map", text: "궁금한 게 있을 때 담당자·부서는 어떻게 확인하세요?" },
+      { tag: "High Performer", text: "AZ에서 '잘하는 마케터'는 어떤 기준으로 평가되나요?" },
+      { tag: "First 3 Months", text: "지금 다시 입사한다면, 첫 3개월 동안 무엇에 가장 집중하시겠어요?" },
+      { tag: "Unwritten Rules", text: "AZ에서 일을 잘하려면 반드시 알아야 할 암묵적인 룰은?" }
+    ]
+  },
+  {
+    title: "모든 그룹 공통 · 아이스브레이킹",
+    subtitle: "가볍게 대화를 여는 질문 — 어느 멘티에게나",
+    color: "bg-orange-50 border-orange-200 text-orange-900",
+    tagColor: "bg-orange-100 text-orange-700 border-orange-200",
+    questions: [
+      { tag: "커리어", text: "이 일을 하면서 '이 직업 선택하길 잘했다' 느낀 최고의 순간은 언제인가요?" },
+      { tag: "점심 메뉴", text: "회사 근처(담당 지역)에서 '이건 꼭 먹어봐야 한다' 메뉴 3가지만 추천해 주세요!" },
+      { tag: "스트레스 관리", text: "번아웃이 올 때 선배님만의 기분 전환 방법이나 취미가 있으세요?" },
+      { tag: "사내 문화", text: "우리 팀에서 '이건 절대 안 된다' 금기, 또는 '이건 적극 추천'하는 문화가 있나요?" }
+    ]
+  }
+];
+
+const contacts = [
+  { franchise: 'BC', names: '김지영, 조재원' },
+  { franchise: 'GI', names: '이상훈' },
+  { franchise: 'GUGY', names: '박민정' },
+];
+
+export default function MentoringApp() {
+  const [activeTab, setActiveTab] = useState('cards'); // Changed default to cards to show the update
+  
+  // Firebase Auth State
+  const [user, setUser] = useState(null);
+  
+  // Feedback Data State
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [isLoadingFeedbacks, setIsLoadingFeedbacks] = useState(true);
+  
+  // Form State
+  const [formData, setFormData] = useState({ name: '', franchise: '', content: '' });
+  const [imageFile, setImageFile] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  // 1. Firebase Authentication
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+      } catch (error) {
+        console.error("Auth error:", error);
+      }
+    };
+    initAuth();
+
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // 2. Fetch Feedbacks from Firestore
+  useEffect(() => {
+    if (!user) return;
+
+    const publicCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'mentoring_feedbacks');
+    
+    const unsubscribe = onSnapshot(publicCollectionRef, 
+      (snapshot) => {
+        const fetchedData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        fetchedData.sort((a, b) => b.createdAt - a.createdAt);
+        
+        setFeedbacks(fetchedData);
+        setIsLoadingFeedbacks(false);
+      },
+      (error) => {
+        console.error("Error fetching feedbacks:", error);
+        setIsLoadingFeedbacks(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [user]);
+
+  // Image Compression helper
+  const compressImage = (file) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 600;
+          let width = img.width;
+          let height = img.height;
+          
+          if (width > MAX_WIDTH) {
+            height = height * (MAX_WIDTH / width);
+            width = MAX_WIDTH;
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', 0.6));
+        };
+      };
+    });
+  };
+
+  // Form Submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!user || isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      let compressedImageBase64 = null;
+      if (imageFile) {
+        compressedImageBase64 = await compressImage(imageFile);
+      }
+
+      const publicCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'mentoring_feedbacks');
+      await addDoc(publicCollectionRef, {
+        name: formData.name,
+        franchise: formData.franchise,
+        content: formData.content,
+        image: compressedImageBase64,
+        createdAt: Date.now(),
+        userId: user.uid
+      });
+
+      setSubmitSuccess(true);
+      setFormData({ name: '', franchise: '', content: '' });
+      setImageFile(null);
+      
+      setTimeout(() => {
+        setSubmitSuccess(false);
+      }, 3000);
+
+    } catch (error) {
+      console.error("Error adding document: ", error);
+      alert("제출 중 오류가 발생했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setImageFile(e.target.files[0]);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 font-sans text-gray-800 pb-20">
+      {/* Header */}
+      <header className="bg-white shadow-sm sticky top-0 z-10">
+        <div className="max-w-3xl mx-auto px-4 py-6 text-center">
+          <div className="inline-flex items-center justify-center p-3 bg-orange-100 rounded-full mb-3 shadow-inner">
+            <Heart className="w-8 h-8 text-orange-500 fill-orange-500 animate-pulse" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2 tracking-tight">토닥토닥 멘토링 프로그램</h1>
+          <p className="text-gray-600 text-sm font-medium">
+            신규 입사자분들의 즐겁고 편안한 온보딩을 응원합니다! 🎉
+          </p>
+        </div>
+        
+        {/* Navigation Tabs */}
+        <div className="flex overflow-x-auto border-t border-gray-100 max-w-3xl mx-auto hide-scrollbar">
+          {[
+            { id: 'guide', icon: Info, label: '안내' },
+            { id: 'matching', icon: Users, label: '매칭 리스트' },
+            { id: 'cards', icon: MessageCircle, label: '질문 카드' },
+            { id: 'submit', icon: Camera, label: '결과 공유' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 min-w-[90px] py-3.5 flex flex-col items-center gap-1.5 text-sm font-semibold transition-all duration-200 border-b-[3px] 
+                ${activeTab === tab.id 
+                  ? 'border-orange-500 text-orange-600 bg-orange-50/40' 
+                  : 'border-transparent text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}
+            >
+              <tab.icon className="w-5 h-5" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </header>
+
+      {/* Main Content Area */}
+      <main className="max-w-3xl mx-auto p-4 py-8">
+        
+        {/* 1. Guide Tab */}
+        {activeTab === 'guide' && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+              <h2 className="text-xl font-bold mb-5 flex items-center gap-2 text-gray-800">
+                <span className="text-2xl">👋</span> 환영합니다!
+              </h2>
+              <p className="leading-relaxed text-gray-700 mb-6 font-medium">
+                이번에 새롭게 합류한 뉴커머 분들이 우리 조직에 보다 즐겁고 편안하게 온보딩을 하실 수 있도록, 따뜻한 응원의 마음을 가득 담아 <b className="text-orange-600">멘토-멘티 프로그램</b>을 시작하게 되었습니다.
+              </p>
+
+              {/* 진행 방식 */}
+              <div className="bg-orange-50/80 rounded-xl p-5 flex items-start gap-4 border border-orange-100 mb-4">
+                <div className="bg-orange-100 p-2 rounded-lg shrink-0">
+                  <Calendar className="w-6 h-6 text-orange-600" />
+                </div>
+                <div className="w-full">
+                  <h3 className="font-bold text-orange-900 mb-3 text-lg">프로그램 진행 방식</h3>
+                  <ul className="text-orange-900 text-sm space-y-3 font-medium leading-relaxed">
+                    <li className="flex gap-2">
+                      <span className="text-orange-500 mt-0.5">•</span>
+                      <span><b>9월 중</b> 한 번 멘토-멘티가 만나 편하게 대화를 나누어 주세요.</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-orange-500 mt-0.5">•</span>
+                      <span><b className="text-orange-700 bg-orange-200/50 px-1 rounded">멘티 분들께서 먼저 멘토 분들께 연락하시어</b> 약속을 잡아주세요~ 🤙</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-orange-500 mt-0.5">•</span>
+                      <span>만남 후 '토닥토닥' 순간을 담은 사진/영상과 간단한 소감을 멘티와 <b>같은 Franchise 소속 담당자</b>에게 공유 부탁드립니다. (메일 / 카톡 / Teams 모두 가능하며, '결과 공유' 탭에서 바로 올리실 수도 있습니다.)</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* 정산 안내 */}
+              <div className="bg-emerald-50 rounded-xl p-5 flex items-start gap-4 border border-emerald-100 mb-8">
+                <div className="bg-emerald-100 p-2 rounded-lg shrink-0">
+                  <CreditCard className="w-6 h-6 text-emerald-600" />
+                </div>
+                <div className="w-full">
+                  <h3 className="font-bold text-emerald-900 mb-3 text-lg flex items-center gap-2">
+                    🌿 비용 및 정산 안내
+                  </h3>
+                  <div className="text-emerald-900 text-sm font-medium space-y-3">
+                    <p className="bg-emerald-100/50 inline-block px-3 py-1.5 rounded-lg text-emerald-800 font-bold border border-emerald-200">
+                      1인당 25,000원 이내 식사 가능
+                    </p>
+                    
+                    <div className="bg-white/60 p-4 rounded-lg border border-emerald-100 mt-2">
+                      <p className="font-bold text-emerald-800 mb-2">📌 Concur 입력 기준</p>
+                      <ul className="space-y-1.5 text-emerald-700">
+                        <li className="flex gap-2">
+                          <span className="shrink-0 font-semibold w-28 text-emerald-800">Expense type:</span>
+                          <span>식사 (직원 회식비 또는 식사 with non HCP)</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="shrink-0 font-semibold w-28 text-emerald-800">Business Purpose:</span>
+                          <span>OBU 슬기로운 온코생활 미팅</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="shrink-0 font-semibold w-28 text-emerald-800">Project Code:</span>
+                          <span>(Z3550600002) Z355-Other Activity_KR</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-center bg-gray-50 p-6 rounded-xl border border-gray-100">
+                <Sparkles className="w-6 h-6 text-orange-400 mx-auto mb-2" />
+                <p className="text-gray-700 font-semibold leading-relaxed">
+                  본 프로그램을 통해 보다 따뜻한 연결 속에서<br/>
+                  함께 성장하는 시간이 되길 기대하겠습니다 😊!
+                </p>
+              </div>
+
+            </div>
+          </div>
+        )}
+
+        {/* 2. Matching Tab */}
+        {activeTab === 'matching' && (
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="text-center mb-8">
+              <h2 className="text-xl font-bold text-gray-800">2H 멘토-멘티 매칭 결과</h2>
+              <p className="text-sm text-gray-500 mt-2">소속과 직무를 고려하여 세심하게 매칭되었습니다.</p>
+            </div>
+            
+            <div className="grid gap-4 sm:grid-cols-2">
+              {matchings.map((pair, idx) => (
+                <div key={idx} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow">
+                  {/* Mentee */}
+                  <div className="flex-1 text-center">
+                    <div className="inline-block px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs font-bold mb-2">Mentee</div>
+                    <div className="font-bold text-lg text-gray-800">{pair.mentee}</div>
+                    <div className="text-xs text-gray-500 mt-1">{pair.menteeTeam} <span className="mx-1">•</span> {pair.job}</div>
+                  </div>
+                  
+                  {/* Divider */}
+                  <div className="px-3 text-gray-300">
+                    <Heart className="w-5 h-5 text-orange-200 fill-orange-100" />
+                  </div>
+                  
+                  {/* Mentor */}
+                  <div className="flex-1 text-center">
+                    <div className="inline-block px-2 py-1 bg-orange-50 text-orange-600 rounded text-xs font-bold mb-2">Mentor</div>
+                    <div className="font-bold text-lg text-gray-800">{pair.mentor}</div>
+                    <div className="text-xs text-gray-500 mt-1">{pair.mentorTeam}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 3. Question Cards Tab */}
+        {activeTab === 'cards' && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-bold text-gray-800 mb-3">슬기로운 온코생활 질문 카드</h2>
+              <div className="bg-orange-50 inline-block p-4 rounded-xl border border-orange-100 max-w-lg">
+                <MessageSquareHeart className="w-6 h-6 text-orange-500 mx-auto mb-2" />
+                <p className="text-sm text-orange-900 leading-relaxed font-medium">
+                  자유로운 대화를 가장 권장 드리지만, 처음이 어려우신 분들을 위해 <b>샘플 토픽</b>을 함께 드립니다. 편하게 참고하셔서 더 의미 있는 시간을 보내시기 바랍니다.
+                </p>
+              </div>
+            </div>
+
+            {questionCategories.map((category, idx) => (
+              <div key={idx} className="space-y-4">
+                <div className={`p-5 rounded-2xl border ${category.color} shadow-sm`}>
+                  <h3 className="font-bold text-lg">{category.title}</h3>
+                  <p className="text-sm mt-1.5 opacity-90 font-medium">{category.subtitle}</p>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2 px-2">
+                  {category.questions.map((q, qIdx) => (
+                    <div key={qIdx} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col hover:border-gray-300 transition-colors cursor-pointer group">
+                      <div className="flex justify-between items-start mb-3">
+                        <span className={`text-[11px] font-bold px-2 py-1 rounded-full border ${category.tagColor}`}>
+                          {q.tag}
+                        </span>
+                        <MessageCircle className="w-4 h-4 text-gray-300 group-hover:text-gray-400 transition-colors" />
+                      </div>
+                      <p className="text-gray-800 text-[15px] leading-relaxed font-bold break-keep">
+                        {q.text}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* 4. Submit Tab (with Firebase) */}
+        {activeTab === 'submit' && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            
+            {/* Guide Section */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+              <h2 className="text-xl font-bold mb-4 text-gray-800">📸 '토닥토닥' 순간 공유하기</h2>
+              <p className="text-gray-600 mb-6 text-sm leading-relaxed font-medium">
+                만남 후 즐거웠던 순간을 담은 <b>사진</b>과 <b>간단한 소감</b>을 남겨주세요.<br/>
+                아래 폼에 입력하시면 동료들과 실시간으로 추억을 나눌 수 있습니다!
+              </p>
+
+              <div className="bg-gray-50 rounded-xl p-5 mb-8 border border-gray-200">
+                <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-gray-500" /> 직접 전달시 소속별 담당자
+                </h3>
+                <p className="text-xs text-gray-500 mb-3 font-medium">멘티와 같은 Franchise 소속 담당자에게 공유 부탁드립니다.</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {contacts.map((contact, idx) => (
+                    <div key={idx} className="bg-white px-4 py-3 rounded-lg border border-gray-100 text-sm shadow-sm">
+                      <div className="font-bold text-orange-600 mb-1">{contact.franchise}</div>
+                      <div className="text-gray-700 font-medium">{contact.names}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Upload Form */}
+              <div className="border-t border-gray-100 pt-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-5">실시간 후기 남기기 (선택)</h3>
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div className="flex gap-4">
+                    <div className="flex-1">
+                      <label className="block text-xs font-bold text-gray-500 mb-2">Franchise (소속)</label>
+                      <select 
+                        required
+                        value={formData.franchise}
+                        onChange={(e) => setFormData({...formData, franchise: e.target.value})}
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:bg-white transition-colors"
+                      >
+                        <option value="">선택해주세요</option>
+                        <option value="BC">BC</option>
+                        <option value="GI">GI</option>
+                        <option value="GUGY">GUGY</option>
+                        <option value="LC">LC</option>
+                        <option value="기타">기타 부서</option>
+                      </select>
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-xs font-bold text-gray-500 mb-2">이름 (멘토/멘티)</label>
+                      <input 
+                        type="text" 
+                        required
+                        value={formData.name}
+                        onChange={(e) => setFormData({...formData, name: e.target.value})}
+                        placeholder="예: 장재우" 
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:bg-white transition-colors" 
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 mb-2">짧은 소감</label>
+                    <textarea 
+                      required
+                      value={formData.content}
+                      onChange={(e) => setFormData({...formData, content: e.target.value})}
+                      rows="3" 
+                      placeholder="멘토링 어떠셨나요? 즐거웠던 기억을 자유롭게 남겨주세요!" 
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:bg-white transition-colors resize-none"
+                    ></textarea>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 mb-2">인증 사진 (선택)</label>
+                    <div className="relative">
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleFileChange}
+                        className="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 cursor-pointer bg-gray-50 border border-gray-200 rounded-xl" 
+                      />
+                    </div>
+                  </div>
+                  
+                  <button 
+                    type="submit" 
+                    disabled={isSubmitting || !user} 
+                    className="w-full bg-orange-500 text-white font-bold py-3.5 rounded-xl hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 disabled:bg-gray-300 disabled:cursor-not-allowed shadow-sm shadow-orange-500/30"
+                  >
+                    {isSubmitting ? (
+                      <><Loader2 className="w-5 h-5 animate-spin" /> 업로드 중...</>
+                    ) : submitSuccess ? (
+                      <><CheckCircle2 className="w-5 h-5" /> 공유 완료!</>
+                    ) : (
+                      '웹에 결과 공유하기'
+                    )}
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            {/* Submissions Feed */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+              <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
+                🌟 우리의 토닥토닥 순간들
+                <span className="bg-orange-100 text-orange-600 text-xs py-1 px-2 rounded-full ml-1">
+                  {feedbacks.length}
+                </span>
+              </h3>
+
+              {isLoadingFeedbacks ? (
+                <div className="flex flex-col items-center justify-center py-10 text-gray-400">
+                  <Loader2 className="w-8 h-8 animate-spin mb-3 text-orange-300" />
+                  <p className="text-sm font-medium">후기를 불러오는 중입니다...</p>
+                </div>
+              ) : feedbacks.length === 0 ? (
+                <div className="text-center py-10 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                  <ImageIcon className="w-10 h-10 mx-auto text-gray-300 mb-3" />
+                  <p className="text-gray-500 text-sm font-medium">아직 등록된 후기가 없어요.<br/>첫 번째 주인공이 되어주세요!</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {feedbacks.map((feedback) => (
+                    <div key={feedback.id} className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="bg-orange-100 rounded-full w-10 h-10 flex items-center justify-center shrink-0">
+                          <UserCircle2 className="w-6 h-6 text-orange-500" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-gray-800">{feedback.name}</span>
+                            <span className="text-xs px-2 py-0.5 bg-white border border-gray-200 rounded text-gray-500 font-semibold">{feedback.franchise}</span>
+                          </div>
+                          <div className="text-xs text-gray-400 mt-0.5">
+                            {new Date(feedback.createdAt).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </div>
+                        </div>
+                      </div>
+                      <p className="text-gray-700 text-sm leading-relaxed mb-3 whitespace-pre-wrap font-medium">
+                        {feedback.content}
+                      </p>
+                      {feedback.image && (
+                        <div className="mt-3 rounded-xl overflow-hidden border border-gray-200 bg-white">
+                          <img src={feedback.image} alt="멘토링 인증" className="w-full h-auto object-cover max-h-64" />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+          </div>
+        )}
+
+      </main>
+    </div>
+  );
+}
