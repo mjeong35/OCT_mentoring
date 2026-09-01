@@ -5,14 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>토닥토닥 멘토링 프로그램</title>
   
-  <!-- Tailwind CSS (디자인) -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Phosphor Icons (아이콘) -->
+  <!-- Phosphor Icons -->
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   
   <style>
-    /* 스크롤바 숨기기 */
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .fade-in { animation: fadeIn 0.5s ease-in-out; }
@@ -56,56 +54,80 @@
     
     <!-- 1. Guide Tab -->
     <div id="tab-guide" class="tab-content fade-in space-y-6">
-      <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+      <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
         <h2 class="text-xl font-bold mb-5 flex items-center gap-2 text-gray-800">
           <span class="text-2xl">👋</span> 환영합니다!
         </h2>
-        <p class="leading-relaxed text-gray-700 mb-6 font-medium">
+        <p class="leading-relaxed text-gray-700 mb-6 font-medium break-keep">
           이번에 새롭게 합류한 뉴커머 분들이 우리 조직에 보다 즐겁고 편안하게 온보딩을 하실 수 있도록, 따뜻한 응원의 마음을 가득 담아 <b class="text-orange-600">멘토-멘티 프로그램</b>을 시작하게 되었습니다.
         </p>
 
-        <!-- 진행 방식 -->
-        <div class="bg-orange-50/80 rounded-xl p-5 flex items-start gap-4 border border-orange-100 mb-4">
-          <div class="bg-orange-100 p-2 rounded-lg shrink-0">
-            <i class="ph-fill ph-calendar-blank text-orange-600 text-2xl"></i>
+        <!-- 진행 방식 (들여쓰기 개선) -->
+        <div class="bg-orange-50/80 rounded-xl p-5 border border-orange-100 mb-5">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="bg-orange-100 p-2 rounded-lg shrink-0">
+              <i class="ph-fill ph-calendar-blank text-orange-600 text-xl"></i>
+            </div>
+            <h3 class="font-bold text-orange-900 text-lg">프로그램 진행 방식</h3>
           </div>
-          <div class="w-full">
-            <h3 class="font-bold text-orange-900 mb-3 text-lg">프로그램 진행 방식</h3>
-            <ul class="text-orange-900 text-sm space-y-3 font-medium leading-relaxed">
-              <li class="flex gap-2"><span class="text-orange-500 mt-0.5">•</span><span><b>9월 중</b> 한 번 멘토-멘티가 만나 편하게 대화를 나누어 주세요.</span></li>
-              <li class="flex gap-2"><span class="text-orange-500 mt-0.5">•</span><span><b class="text-orange-700 bg-orange-200/50 px-1 rounded">멘티 분들께서 먼저 멘토 분들께 연락하시어</b> 약속을 잡아주세요~ 🤙</span></li>
-              <li class="flex gap-2"><span class="text-orange-500 mt-0.5">•</span><span>만남 후 '토닥토닥' 순간을 담은 사진/영상과 간단한 소감을 멘티와 <b>같은 Franchise 소속 담당자</b>에게 공유 부탁드립니다.</span></li>
-            </ul>
-          </div>
+          
+          <ul class="text-orange-900 text-sm space-y-3.5 font-medium leading-relaxed">
+            <li class="flex gap-2 items-start">
+              <span class="text-orange-500 mt-0.5">•</span>
+              <span class="flex-1"><b>9월 중</b> 한 번 멘토-멘티가 만나 편하게 대화를 나누어 주세요.</span>
+            </li>
+            <li class="flex gap-2 items-start">
+              <span class="text-orange-500 mt-0.5">•</span>
+              <span class="flex-1"><b class="text-orange-700 bg-orange-200/50 px-1 rounded">멘티 분들께서 먼저 멘토 분들께 연락하시어</b> 약속을 잡아주세요~ 🤙</span>
+            </li>
+            <li class="flex gap-2 items-start">
+              <span class="text-orange-500 mt-0.5">•</span>
+              <span class="flex-1">만남 후 '토닥토닥' 순간을 담은 사진/영상과 간단한 소감을 멘티와 <b>같은 Franchise 소속 담당자</b>에게 공유 부탁드립니다. <br/><span class="text-orange-700/80 text-xs">(메일 / 카톡 / Teams 모두 가능하며, '결과 공유' 탭에서 바로 올리실 수도 있습니다.)</span></span>
+            </li>
+          </ul>
         </div>
 
-        <!-- 정산 안내 -->
-        <div class="bg-emerald-50 rounded-xl p-5 flex items-start gap-4 border border-emerald-100 mb-8">
-          <div class="bg-emerald-100 p-2 rounded-lg shrink-0">
-            <i class="ph-fill ph-credit-card text-emerald-600 text-2xl"></i>
+        <!-- 정산 안내 (모바일 최적화) -->
+        <div class="bg-emerald-50 rounded-xl p-5 border border-emerald-100 mb-8">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="bg-emerald-100 p-2 rounded-lg shrink-0">
+              <i class="ph-fill ph-credit-card text-emerald-600 text-xl"></i>
+            </div>
+            <h3 class="font-bold text-emerald-900 text-lg flex items-center gap-2">
+              🌿 비용 및 정산 안내
+            </h3>
           </div>
-          <div class="w-full">
-            <h3 class="font-bold text-emerald-900 mb-3 text-lg flex items-center gap-2">🌿 비용 및 정산 안내</h3>
-            <div class="text-emerald-900 text-sm font-medium space-y-3">
-              <p class="bg-emerald-100/50 inline-block px-3 py-1.5 rounded-lg text-emerald-800 font-bold border border-emerald-200">
-                1인당 25,000원 이내 식사 가능
-              </p>
-              <div class="bg-white/60 p-4 rounded-lg border border-emerald-100 mt-2">
-                <p class="font-bold text-emerald-800 mb-2">📌 Concur 입력 기준</p>
-                <ul class="space-y-1.5 text-emerald-700">
-                  <li class="flex gap-2"><span class="shrink-0 font-semibold w-28 text-emerald-800">Expense type:</span><span>식사 (직원 회식비 또는 식사 with non HCP)</span></li>
-                  <li class="flex gap-2"><span class="shrink-0 font-semibold w-28 text-emerald-800">Business Purpose:</span><span>OBU 슬기로운 온코생활 미팅</span></li>
-                  <li class="flex gap-2"><span class="shrink-0 font-semibold w-28 text-emerald-800">Project Code:</span><span>(Z3550600002) Z355-Other Activity_KR</span></li>
-                </ul>
-              </div>
+
+          <div class="text-emerald-900 text-sm font-medium space-y-4">
+            <p class="bg-emerald-100/50 inline-block px-3 py-1.5 rounded-lg text-emerald-800 font-bold border border-emerald-200">
+              1인당 25,000원 이내 식사 가능
+            </p>
+            
+            <div class="bg-white/60 p-4 rounded-lg border border-emerald-100">
+              <p class="font-bold text-emerald-800 mb-3">📌 Concur 입력 기준</p>
+              <ul class="space-y-3 text-emerald-700">
+                <li class="flex flex-col sm:flex-row sm:gap-3">
+                  <span class="font-semibold text-emerald-800 sm:w-32 shrink-0">Expense type:</span>
+                  <span class="break-keep">식사 (직원 회식비 또는 식사 with non HCP)</span>
+                </li>
+                <li class="flex flex-col sm:flex-row sm:gap-3">
+                  <span class="font-semibold text-emerald-800 sm:w-32 shrink-0">Business Purpose:</span>
+                  <span class="break-keep">OBU 슬기로운 온코생활 미팅</span>
+                </li>
+                <li class="flex flex-col sm:flex-row sm:gap-3">
+                  <span class="font-semibold text-emerald-800 sm:w-32 shrink-0">Project Code:</span>
+                  <span class="break-all">(Z3550600002) Z355-Other Activity_KR</span>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
 
         <div class="text-center bg-gray-50 p-6 rounded-xl border border-gray-100">
           <i class="ph-fill ph-sparkle text-orange-400 text-2xl mx-auto mb-2 inline-block"></i>
-          <p class="text-gray-700 font-semibold leading-relaxed">
-            본 프로그램을 통해 보다 따뜻한 연결 속에서<br/>함께 성장하는 시간이 되길 기대하겠습니다 😊!
+          <p class="text-gray-700 font-semibold leading-relaxed break-keep">
+            본 프로그램을 통해 보다 따뜻한 연결 속에서<br/>
+            함께 성장하는 시간이 되길 기대하겠습니다 😊!
           </p>
         </div>
       </div>
@@ -128,7 +150,7 @@
         <h2 class="text-xl font-bold text-gray-800 mb-3">슬기로운 온코생활 질문 카드</h2>
         <div class="bg-orange-50 inline-block p-4 rounded-xl border border-orange-100 max-w-lg">
           <i class="ph-fill ph-chat-teardrop-text text-orange-500 text-2xl mx-auto mb-2 inline-block"></i>
-          <p class="text-sm text-orange-900 leading-relaxed font-medium">
+          <p class="text-sm text-orange-900 leading-relaxed font-medium break-keep">
             자유로운 대화를 가장 권장 드리지만, 처음이 어려우신 분들을 위해 <b>샘플 토픽</b>을 함께 드립니다. 편하게 참고하셔서 더 의미 있는 시간을 보내시기 바랍니다.
           </p>
         </div>
@@ -142,7 +164,7 @@
     <div id="tab-submit" class="tab-content hidden fade-in space-y-8">
       <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <h2 class="text-xl font-bold mb-4 text-gray-800">📸 '토닥토닥' 순간 공유하기</h2>
-        <p class="text-gray-600 mb-6 text-sm leading-relaxed font-medium">
+        <p class="text-gray-600 mb-6 text-sm leading-relaxed font-medium break-keep">
           만남 후 즐거웠던 순간을 담은 <b>사진</b>과 <b>간단한 소감</b>을 남겨주세요.<br/>
           아래 폼에 입력하시면 동료들과 실시간으로 추억을 나눌 수 있습니다!
         </p>
@@ -153,16 +175,16 @@
           </h3>
           <p class="text-xs text-gray-500 mb-3 font-medium">멘티와 같은 Franchise 소속 담당자에게 공유 부탁드립니다.</p>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div class="bg-white px-4 py-3 rounded-lg border border-gray-100 text-sm shadow-sm">
-              <div class="font-bold text-orange-600 mb-1">BC</div>
+            <div class="bg-white px-4 py-3 rounded-lg border border-gray-100 text-sm shadow-sm flex flex-row sm:flex-col items-center sm:items-start gap-2 sm:gap-1">
+              <div class="font-bold text-orange-600">BC</div>
               <div class="text-gray-700 font-medium">김지영, 조재원</div>
             </div>
-            <div class="bg-white px-4 py-3 rounded-lg border border-gray-100 text-sm shadow-sm">
-              <div class="font-bold text-orange-600 mb-1">GI</div>
+            <div class="bg-white px-4 py-3 rounded-lg border border-gray-100 text-sm shadow-sm flex flex-row sm:flex-col items-center sm:items-start gap-2 sm:gap-1">
+              <div class="font-bold text-orange-600">GI</div>
               <div class="text-gray-700 font-medium">이상훈</div>
             </div>
-            <div class="bg-white px-4 py-3 rounded-lg border border-gray-100 text-sm shadow-sm">
-              <div class="font-bold text-orange-600 mb-1">GUGY</div>
+            <div class="bg-white px-4 py-3 rounded-lg border border-gray-100 text-sm shadow-sm flex flex-row sm:flex-col items-center sm:items-start gap-2 sm:gap-1">
+              <div class="font-bold text-orange-600">GUGY</div>
               <div class="text-gray-700 font-medium">박민정</div>
             </div>
           </div>
@@ -171,7 +193,8 @@
         <div class="border-t border-gray-100 pt-6">
           <h3 class="text-lg font-bold text-gray-800 mb-5">실시간 후기 남기기 (선택)</h3>
           <form id="submit-form" class="space-y-5">
-            <div class="flex gap-4">
+            <!-- Row 1: Franchise, Name, Date -->
+            <div class="flex flex-col sm:flex-row gap-4">
               <div class="flex-1">
                 <label class="block text-xs font-bold text-gray-500 mb-2">Franchise (소속)</label>
                 <select id="input-franchise" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:bg-white transition-colors">
@@ -186,6 +209,10 @@
               <div class="flex-1">
                 <label class="block text-xs font-bold text-gray-500 mb-2">이름 (멘토/멘티)</label>
                 <input id="input-name" type="text" required placeholder="예: 장재우" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:bg-white transition-colors" />
+              </div>
+              <div class="flex-1">
+                <label class="block text-xs font-bold text-gray-500 mb-2">멘토링 진행 날짜</label>
+                <input id="input-date" type="date" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:bg-white transition-colors text-gray-700" />
               </div>
             </div>
             
@@ -206,26 +233,24 @@
         </div>
       </div>
 
-      <!-- Feedbacks -->
+      <!-- Feedbacks Area -->
       <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
           🌟 우리의 토닥토닥 순간들
           <span id="feedback-count" class="bg-orange-100 text-orange-600 text-xs py-1 px-2 rounded-full ml-1">0</span>
         </h3>
         <div id="feedback-list" class="space-y-4">
-          <!-- JS로 렌더링됨 -->
+          <div class="text-center py-10"><i class="ph ph-spinner animate-spin text-3xl text-orange-400"></i><p class="text-gray-500 text-sm mt-3 font-medium">데이터베이스 연동 대기 중...</p></div>
         </div>
       </div>
     </div>
   </main>
 
-  <!-- JavaScript Logic -->
+  <!-- 기본 UI 렌더링 스크립트 -->
   <script>
-    // 탭 전환 로직
     function switchTab(tabId, btnElement) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
       document.getElementById('tab-' + tabId).classList.remove('hidden');
-      
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('border-orange-500', 'text-orange-600', 'bg-orange-50/40');
         btn.classList.add('border-transparent', 'text-gray-400');
@@ -234,7 +259,7 @@
       btnElement.classList.add('border-orange-500', 'text-orange-600', 'bg-orange-50/40');
     }
 
-    // 데이터
+    // 매칭 리스트 렌더링
     const matchings = [
       { mentee: '장재우', menteeTeam: 'BC SM', job: 'MKT', mentor: '이하경', mentorTeam: 'GUGY' },
       { mentee: '김가람', menteeTeam: 'GUGY', job: 'MKT', mentor: '한지수', mentorTeam: 'GI' },
@@ -245,7 +270,14 @@
       { mentee: '이수진', menteeTeam: 'LC', job: 'MR', mentor: '이철오', mentorTeam: 'GUGY' },
       { mentee: '조형진', menteeTeam: 'BC', job: 'MR', mentor: '권성환', mentorTeam: 'GUGY' }
     ];
+    document.getElementById('matching-list').innerHTML = matchings.map(pair => `
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow">
+        <div class="flex-1 text-center"><div class="inline-block px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs font-bold mb-2">Mentee</div><div class="font-bold text-lg text-gray-800">${pair.mentee}</div><div class="text-xs text-gray-500 mt-1">${pair.menteeTeam} &bull; ${pair.job}</div></div>
+        <div class="px-3 text-gray-300"><i class="ph-fill ph-heart text-orange-200 text-xl"></i></div>
+        <div class="flex-1 text-center"><div class="inline-block px-2 py-1 bg-orange-50 text-orange-600 rounded text-xs font-bold mb-2">Mentor</div><div class="font-bold text-lg text-gray-800">${pair.mentor}</div><div class="text-xs text-gray-500 mt-1">${pair.mentorTeam}</div></div>
+      </div>`).join('');
 
+    // 질문 카드 렌더링
     const questionCategories = [
       {
         title: "신규 입사자 멘티", subtitle: "업무 지식보다 '사회생활 적응' · '업무 루틴 만들기'가 핵심",
@@ -290,134 +322,163 @@
       }
     ];
 
-    // 매칭 리스트 렌더링
-    const matchingListEl = document.getElementById('matching-list');
-    matchings.forEach(pair => {
-      matchingListEl.innerHTML += `
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow">
-          <div class="flex-1 text-center">
-            <div class="inline-block px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs font-bold mb-2">Mentee</div>
-            <div class="font-bold text-lg text-gray-800">${pair.mentee}</div>
-            <div class="text-xs text-gray-500 mt-1">${pair.menteeTeam} &bull; ${pair.job}</div>
-          </div>
-          <div class="px-3 text-gray-300">
-            <i class="ph-fill ph-heart text-orange-200 text-xl"></i>
-          </div>
-          <div class="flex-1 text-center">
-            <div class="inline-block px-2 py-1 bg-orange-50 text-orange-600 rounded text-xs font-bold mb-2">Mentor</div>
-            <div class="font-bold text-lg text-gray-800">${pair.mentor}</div>
-            <div class="text-xs text-gray-500 mt-1">${pair.mentorTeam}</div>
-          </div>
+    document.getElementById('question-list').innerHTML = questionCategories.map(category => `
+      <div class="space-y-4">
+        <div class="p-5 rounded-2xl border ${category.color} shadow-sm">
+          <h3 class="font-bold text-lg">${category.title}</h3>
+          <p class="text-sm mt-1.5 opacity-90 font-medium break-keep">${category.subtitle}</p>
         </div>
-      `;
-    });
-
-    // 질문 카드 렌더링
-    const questionListEl = document.getElementById('question-list');
-    questionCategories.forEach(category => {
-      let questionsHtml = category.questions.map(q => `
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col hover:border-gray-300 transition-colors cursor-pointer group">
-          <div class="flex justify-between items-start mb-3">
-            <span class="text-[11px] font-bold px-2 py-1 rounded-full border ${category.tagColor}">${q.tag}</span>
-            <i class="ph ph-chat-circle text-gray-300 group-hover:text-gray-400"></i>
-          </div>
-          <p class="text-gray-800 text-[15px] leading-relaxed font-bold break-keep">${q.text}</p>
-        </div>
-      `).join('');
-
-      questionListEl.innerHTML += `
-        <div class="space-y-4">
-          <div class="p-5 rounded-2xl border ${category.color} shadow-sm">
-            <h3 class="font-bold text-lg">${category.title}</h3>
-            <p class="text-sm mt-1.5 opacity-90 font-medium">${category.subtitle}</p>
-          </div>
-          <div class="grid gap-4 sm:grid-cols-2 px-2">
-            ${questionsHtml}
-          </div>
-        </div>
-      `;
-    });
-
-    // 로컬 데이터 제출 (이 HTML 안에서만 임시 동작)
-    let feedbacks = JSON.parse(localStorage.getItem('mentoring_feedbacks') || '[]');
-    
-    function renderFeedbacks() {
-      const listEl = document.getElementById('feedback-list');
-      document.getElementById('feedback-count').innerText = feedbacks.length;
-      
-      if (feedbacks.length === 0) {
-        listEl.innerHTML = `
-          <div class="text-center py-10 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-            <i class="ph ph-image text-4xl text-gray-300 mb-3 block"></i>
-            <p class="text-gray-500 text-sm font-medium">아직 등록된 후기가 없어요.<br/>첫 번째 주인공이 되어주세요!</p>
-          </div>`;
-        return;
-      }
-
-      listEl.innerHTML = feedbacks.map(fb => `
-        <div class="bg-gray-50 rounded-xl p-5 border border-gray-100 fade-in">
-          <div class="flex items-center gap-3 mb-3">
-            <div class="bg-orange-100 rounded-full w-10 h-10 flex items-center justify-center shrink-0">
-              <i class="ph-fill ph-user-circle text-orange-500 text-2xl"></i>
-            </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="font-bold text-gray-800">${fb.name}</span>
-                <span class="text-xs px-2 py-0.5 bg-white border border-gray-200 rounded text-gray-500 font-semibold">${fb.franchise}</span>
+        <div class="grid gap-4 sm:grid-cols-2 px-2">
+          ${category.questions.map(q => `
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col hover:border-gray-300 transition-colors cursor-pointer group">
+              <div class="flex justify-between items-start mb-3">
+                <span class="text-[11px] font-bold px-2 py-1 rounded-full border ${category.tagColor}">${q.tag}</span>
+                <i class="ph ph-chat-circle text-gray-300 group-hover:text-gray-400"></i>
               </div>
-              <div class="text-xs text-gray-400 mt-0.5">${fb.date}</div>
-            </div>
-          </div>
-          <p class="text-gray-700 text-sm leading-relaxed mb-3 whitespace-pre-wrap font-medium">${fb.content}</p>
-          ${fb.image ? `<div class="mt-3 rounded-xl overflow-hidden border border-gray-200 bg-white"><img src="${fb.image}" class="w-full h-auto object-cover max-h-64" /></div>` : ''}
+              <p class="text-gray-800 text-[15px] leading-relaxed font-bold break-keep">${q.text}</p>
+            </div>`).join('')}
         </div>
-      `).join('');
+      </div>`).join('');
+  </script>
+
+  <!-- 💡 Firebase 데이터베이스 연동 스크립트 💡 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+    // 🚨🚨🚨 주변 분께 도움 받으실 때 이 부분을 교체하시면 됩니다! 🚨🚨🚨
+    const firebaseConfig = {
+  apiKey: "AIzaSyAK7HXwYWgOJJsKc8iEZ59naQw45RgSv7w",
+  authDomain: "oct-mentoring.firebaseapp.com",
+  projectId: "oct-mentoring",
+  storageBucket: "oct-mentoring.firebasestorage.app",
+  messagingSenderId: "10116971851",
+  appId: "1:10116971851:web:509900dba810fdb5933cce"
+};
+
+    let app, db, feedbacksRef;
+    
+    try {
+      app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+      feedbacksRef = collection(db, "mentoring_feedbacks");
+      
+      // 데이터 실시간 불러오기
+      const q = query(feedbacksRef, orderBy("createdAt", "desc"));
+      onSnapshot(q, (snapshot) => {
+        const listEl = document.getElementById('feedback-list');
+        const countEl = document.getElementById('feedback-count');
+        
+        countEl.innerText = snapshot.docs.length;
+        
+        if (snapshot.docs.length === 0) {
+          listEl.innerHTML = `<div class="text-center py-10 bg-gray-50 rounded-xl border border-dashed border-gray-200"><p class="text-gray-500 text-sm font-medium">아직 등록된 후기가 없어요.</p></div>`;
+          return;
+        }
+
+        listEl.innerHTML = snapshot.docs.map(doc => {
+          const fb = doc.data();
+          const createdDateStr = fb.createdAt ? new Date(fb.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) : '';
+          
+          return `
+            <div class="bg-gray-50 rounded-xl p-5 border border-gray-100 fade-in">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="bg-orange-100 rounded-full w-10 h-10 flex items-center justify-center shrink-0">
+                  <i class="ph-fill ph-user-circle text-orange-500 text-2xl"></i>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-bold text-gray-800">${fb.name}</span>
+                    <span class="text-xs px-2 py-0.5 bg-white border border-gray-200 rounded text-gray-500 font-semibold">${fb.franchise}</span>
+                  </div>
+                  
+                  <div class="flex flex-wrap items-center gap-2 mt-1.5">
+                    ${fb.mentoringDate ? `
+                      <span class="text-[11px] font-bold bg-orange-100/80 text-orange-700 px-2 py-0.5 rounded-md flex items-center gap-1 border border-orange-200/50">
+                        <i class="ph ph-calendar-blank"></i> 멘토링일: ${fb.mentoringDate}
+                      </span>` : ''
+                    }
+                    <span class="text-[11px] text-gray-400">게시일: ${createdDateStr}</span>
+                  </div>
+                </div>
+              </div>
+              <p class="text-gray-700 text-sm mb-3 whitespace-pre-wrap leading-relaxed font-medium">${fb.content}</p>
+              ${fb.image ? `<img src="${fb.image}" class="w-full rounded-xl object-cover max-h-64 border border-gray-200 mt-3" />` : ''}
+            </div>
+          `;
+        }).join('');
+      }, (error) => {
+        console.error("데이터 불러오기 에러:", error);
+      });
+
+    } catch(e) {
+      console.error("Firebase 초기화 에러:", e);
+      document.getElementById('feedback-list').innerHTML = `<p class="text-red-500 text-center p-4 font-bold">⚠️ 데이터베이스 설정 코드를 입력해주세요. ⚠️</p>`;
     }
 
-    renderFeedbacks();
-
-    // 이미지 압축 및 Base64 변환 함수
-    function processImage(file) {
+    // 이미지 용량 압축 함수
+    function compressImage(file) {
       return new Promise((resolve) => {
         if (!file) return resolve(null);
         const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target.result);
+        reader.onload = (e) => {
+          const img = new Image();
+          img.src = e.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let { width, height } = img;
+            if (width > 800) { height *= 800 / width; width = 800; }
+            canvas.width = width; canvas.height = height;
+            canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.6));
+          };
+        };
         reader.readAsDataURL(file);
       });
     }
 
-    // 폼 제출 이벤트
+    // 폼 제출 로직
     document.getElementById('submit-form').addEventListener('submit', async (e) => {
       e.preventDefault();
+      
+      if (!db) {
+        alert("Firebase 데이터베이스 설정이 완료되지 않았습니다.");
+        return;
+      }
+
       const btn = document.getElementById('submit-btn');
-      btn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> 업로드 중...`;
+      btn.innerHTML = `<i class="ph ph-spinner animate-spin text-xl"></i> 업로드 중...`;
       btn.disabled = true;
 
-      const franchise = document.getElementById('input-franchise').value;
-      const name = document.getElementById('input-name').value;
-      const content = document.getElementById('input-content').value;
-      const imageFile = document.getElementById('input-image').files[0];
-      
-      const imageBase64 = await processImage(imageFile);
-      const date = new Date().toLocaleString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      try {
+        const imageFile = document.getElementById('input-image').files[0];
+        const base64Image = await compressImage(imageFile);
 
-      feedbacks.unshift({ name, franchise, content, image: imageBase64, date });
-      localStorage.setItem('mentoring_feedbacks', JSON.stringify(feedbacks));
+        await addDoc(feedbacksRef, {
+          franchise: document.getElementById('input-franchise').value,
+          name: document.getElementById('input-name').value,
+          mentoringDate: document.getElementById('input-date').value, // 멘토링 날짜 추가
+          content: document.getElementById('input-content').value,
+          image: base64Image,
+          createdAt: Date.now()
+        });
 
-      // 폼 초기화
-      document.getElementById('submit-form').reset();
-      
-      setTimeout(() => {
-        btn.innerHTML = `<i class="ph-fill ph-check-circle"></i> 공유 완료!`;
+        document.getElementById('submit-form').reset();
+        btn.innerHTML = `<i class="ph-fill ph-check-circle text-xl"></i> 공유 완료!`;
         btn.classList.replace('bg-orange-500', 'bg-green-500');
-        renderFeedbacks();
         
         setTimeout(() => {
           btn.innerHTML = '결과 공유하기';
           btn.classList.replace('bg-green-500', 'bg-orange-500');
           btn.disabled = false;
         }, 2000);
-      }, 500);
+
+      } catch (error) {
+        console.error("업로드 에러:", error);
+        alert("업로드 중 오류가 발생했습니다. (Firestore 규칙 설정을 확인해주세요)");
+        btn.innerHTML = '결과 공유하기';
+        btn.disabled = false;
+      }
     });
   </script>
 </body>
