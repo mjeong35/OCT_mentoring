@@ -18,6 +18,25 @@
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    
+    /* Custom Checkbox Style */
+    .status-checkbox:checked + div {
+      background-color: #10B981; /* bg-emerald-500 */
+      border-color: #10B981;
+    }
+    .status-checkbox:checked + div i {
+      display: block;
+    }
+    
+    /* Date Input Customization */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      cursor: pointer;
+      opacity: 0.6;
+      transition: 0.2s;
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator:hover {
+      opacity: 1;
+    }
   </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800 pb-20 min-h-screen">
@@ -62,7 +81,6 @@
           이번에 새롭게 합류한 뉴커머 분들이 우리 조직에 보다 즐겁고 편안하게 온보딩을 하실 수 있도록, 따뜻한 응원의 마음을 가득 담아 <b class="text-orange-600">멘토-멘티 프로그램</b>을 시작하게 되었습니다.
         </p>
 
-        <!-- 진행 방식 (들여쓰기 개선) -->
         <div class="bg-orange-50/80 rounded-xl p-5 border border-orange-100 mb-5">
           <div class="flex items-center gap-3 mb-4">
             <div class="bg-orange-100 p-2 rounded-lg shrink-0">
@@ -82,12 +100,11 @@
             </li>
             <li class="flex gap-2 items-start">
               <span class="text-orange-500 mt-0.5">•</span>
-              <span class="flex-1">만남 후 '토닥토닥' 순간을 담은 사진/영상과 간단한 소감을 멘티와 <b>같은 Franchise 소속 담당자</b>에게 공유 부탁드립니다. <br/><span class="text-orange-700/80 text-xs">(메일 / 카톡 / Teams 모두 가능하며, '결과 공유' 탭에서 바로 올리실 수도 있습니다.)</span></span>
+              <span class="flex-1">만남 후 '토닥토닥' 순간을 담은 사진/영상과 간단한 소감을 결과 공유탭에서 공유 부탁드립니다. <br/><span class="text-orange-700/80 text-xs"></span></span>
             </li>
           </ul>
         </div>
 
-        <!-- 정산 안내 (모바일 최적화) -->
         <div class="bg-emerald-50 rounded-xl p-5 border border-emerald-100 mb-8">
           <div class="flex items-center gap-3 mb-4">
             <div class="bg-emerald-100 p-2 rounded-lg shrink-0">
@@ -133,14 +150,18 @@
       </div>
     </div>
 
-    <!-- 2. Matching Tab -->
+    <!-- 2. Matching Tab (보기 전용) -->
     <div id="tab-matching" class="tab-content hidden fade-in space-y-4">
       <div class="text-center mb-8">
         <h2 class="text-xl font-bold text-gray-800">2H 멘토-멘티 매칭 결과</h2>
         <p class="text-sm text-gray-500 mt-2">소속과 직무를 고려하여 세심하게 매칭되었습니다.</p>
       </div>
+
       <div id="matching-list" class="grid gap-4 sm:grid-cols-2">
-        <!-- JS로 렌더링됨 -->
+        <div class="text-center py-10 w-full col-span-2 text-gray-400">
+          <i class="ph ph-spinner animate-spin text-3xl mb-2 inline-block"></i>
+          <p class="text-sm">데이터를 불러오는 중입니다...</p>
+        </div>
       </div>
     </div>
 
@@ -155,13 +176,36 @@
           </p>
         </div>
       </div>
-      <div id="question-list" class="space-y-8">
-        <!-- JS로 렌더링됨 -->
-      </div>
+      <div id="question-list" class="space-y-8"></div>
     </div>
 
-    <!-- 4. Submit Tab -->
+    <!-- 4. Submit Tab (체크리스트 & 폼) -->
     <div id="tab-submit" class="tab-content hidden fade-in space-y-8">
+      
+      <!-- ✅ 멘토링 진행 & 일정 체크리스트 -->
+      <div class="bg-emerald-50 rounded-2xl p-5 border border-emerald-200 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
+          <h3 class="font-bold text-emerald-900 text-lg flex items-center gap-2">
+            <i class="ph-fill ph-check-circle text-emerald-600"></i> 멘토링 진행 및 일정 공유
+          </h3>
+          <div class="text-sm font-black text-emerald-600 bg-white px-3 py-1 rounded-full shadow-sm border border-emerald-100 self-start sm:self-auto">
+            완료 <span id="completed-count">0</span> / <span id="total-count">8</span>
+          </div>
+        </div>
+        <p class="text-xs text-emerald-700 mb-4 font-medium break-keep">
+          일정이 정해지면 <b>예정일</b>을 입력하시고, 멘토링이 완료되면 우측의 <b>체크박스</b>를 눌러주세요! (실시간으로 공유됩니다)
+        </p>
+        
+        <!-- 체크리스트 목록 렌더링 컨테이너 -->
+        <div id="status-checklist" class="space-y-2 bg-white/60 rounded-xl p-2 border border-emerald-100 shadow-inner">
+          <div class="text-center py-6 text-gray-400">
+            <i class="ph ph-spinner animate-spin text-2xl mb-2 inline-block"></i>
+            <p class="text-xs">데이터를 불러오는 중입니다...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 후기 제출 폼 -->
       <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <h2 class="text-xl font-bold mb-4 text-gray-800">📸 '토닥토닥' 순간 공유하기</h2>
         <p class="text-gray-600 mb-6 text-sm leading-relaxed font-medium break-keep">
@@ -169,31 +213,10 @@
           아래 폼에 입력하시면 동료들과 실시간으로 추억을 나눌 수 있습니다!
         </p>
 
-        <div class="bg-gray-50 rounded-xl p-5 mb-8 border border-gray-200">
-          <h3 class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-            <i class="ph ph-envelope-simple text-gray-500 text-lg"></i> 직접 전달시 소속별 담당자
-          </h3>
-          <p class="text-xs text-gray-500 mb-3 font-medium">멘티와 같은 Franchise 소속 담당자에게 공유 부탁드립니다.</p>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div class="bg-white px-4 py-3 rounded-lg border border-gray-100 text-sm shadow-sm flex flex-row sm:flex-col items-center sm:items-start gap-2 sm:gap-1">
-              <div class="font-bold text-orange-600">BC</div>
-              <div class="text-gray-700 font-medium">김지영, 조재원</div>
-            </div>
-            <div class="bg-white px-4 py-3 rounded-lg border border-gray-100 text-sm shadow-sm flex flex-row sm:flex-col items-center sm:items-start gap-2 sm:gap-1">
-              <div class="font-bold text-orange-600">GI</div>
-              <div class="text-gray-700 font-medium">이상훈</div>
-            </div>
-            <div class="bg-white px-4 py-3 rounded-lg border border-gray-100 text-sm shadow-sm flex flex-row sm:flex-col items-center sm:items-start gap-2 sm:gap-1">
-              <div class="font-bold text-orange-600">GUGY</div>
-              <div class="text-gray-700 font-medium">박민정</div>
-            </div>
-          </div>
-        </div>
-
+       
         <div class="border-t border-gray-100 pt-6">
-          <h3 class="text-lg font-bold text-gray-800 mb-5">실시간 후기 남기기 (선택)</h3>
+          <h3 class="text-lg font-bold text-gray-800 mb-5">실시간 후기 남기기</h3>
           <form id="submit-form" class="space-y-5">
-            <!-- Row 1: Franchise, Name, Date -->
             <div class="flex flex-col sm:flex-row gap-4">
               <div class="flex-1">
                 <label class="block text-xs font-bold text-gray-500 mb-2">Franchise (소속)</label>
@@ -209,10 +232,6 @@
               <div class="flex-1">
                 <label class="block text-xs font-bold text-gray-500 mb-2">이름 (멘토/멘티)</label>
                 <input id="input-name" type="text" required placeholder="예: 장재우" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:bg-white transition-colors" />
-              </div>
-              <div class="flex-1">
-                <label class="block text-xs font-bold text-gray-500 mb-2">멘토링 진행 날짜</label>
-                <input id="input-date" type="date" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:bg-white transition-colors text-gray-700" />
               </div>
             </div>
             
@@ -259,25 +278,6 @@
       btnElement.classList.add('border-orange-500', 'text-orange-600', 'bg-orange-50/40');
     }
 
-    // 매칭 리스트 렌더링
-    const matchings = [
-      { mentee: '장재우', menteeTeam: 'BC SM', job: 'MKT', mentor: '이하경', mentorTeam: 'GUGY' },
-      { mentee: '김가람', menteeTeam: 'GUGY', job: 'MKT', mentor: '한지수', mentorTeam: 'GI' },
-      { mentee: '김희정', menteeTeam: 'GU/BC', job: 'Admin', mentor: '이효선', mentorTeam: 'Admin' },
-      { mentee: '김미래', menteeTeam: 'GI', job: 'MR', mentor: '이승진', mentorTeam: 'LC IO' },
-      { mentee: '송현준', menteeTeam: 'GC', job: 'MR', mentor: '김영태', mentorTeam: 'GUGY' },
-      { mentee: '안승주', menteeTeam: 'LC', job: 'MR', mentor: '윤홍열', mentorTeam: 'BC ADC' },
-      { mentee: '이수진', menteeTeam: 'LC', job: 'MR', mentor: '이철오', mentorTeam: 'GUGY' },
-      { mentee: '조형진', menteeTeam: 'BC', job: 'MR', mentor: '권성환', mentorTeam: 'GUGY' }
-    ];
-    document.getElementById('matching-list').innerHTML = matchings.map(pair => `
-      <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow">
-        <div class="flex-1 text-center"><div class="inline-block px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs font-bold mb-2">Mentee</div><div class="font-bold text-lg text-gray-800">${pair.mentee}</div><div class="text-xs text-gray-500 mt-1">${pair.menteeTeam} &bull; ${pair.job}</div></div>
-        <div class="px-3 text-gray-300"><i class="ph-fill ph-heart text-orange-200 text-xl"></i></div>
-        <div class="flex-1 text-center"><div class="inline-block px-2 py-1 bg-orange-50 text-orange-600 rounded text-xs font-bold mb-2">Mentor</div><div class="font-bold text-lg text-gray-800">${pair.mentor}</div><div class="text-xs text-gray-500 mt-1">${pair.mentorTeam}</div></div>
-      </div>`).join('');
-
-    // 질문 카드 렌더링
     const questionCategories = [
       {
         title: "신규 입사자 멘티", subtitle: "업무 지식보다 '사회생활 적응' · '업무 루틴 만들기'가 핵심",
@@ -344,7 +344,7 @@
   <!-- 💡 Firebase 데이터베이스 연동 스크립트 💡 -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
     // 🚨🚨🚨 주변 분께 도움 받으실 때 이 부분을 교체하시면 됩니다! 🚨🚨🚨
     const firebaseConfig = {
@@ -355,15 +355,155 @@
   messagingSenderId: "10116971851",
   appId: "1:10116971851:web:509900dba810fdb5933cce"
 };
+    // 초기 매칭 리스트 데이터
+    const initialMatchings = [
+      { id: "pair1", mentee: '장재우', menteeTeam: 'BC SM', job: 'MKT', mentor: '이하경', mentorTeam: 'GUGY', isCompleted: false },
+      { id: "pair2", mentee: '김가람', menteeTeam: 'GUGY', job: 'MKT', mentor: '한지수', mentorTeam: 'GI', isCompleted: false },
+      { id: "pair3", mentee: '김희정', menteeTeam: 'GU/BC', job: 'Admin', mentor: '이효선', mentorTeam: 'Admin', isCompleted: false },
+      { id: "pair4", mentee: '김미래', menteeTeam: 'GI', job: 'MR', mentor: '이승진', mentorTeam: 'LC IO', isCompleted: true },
+      { id: "pair5", mentee: '송현준', menteeTeam: 'GC', job: 'MR', mentor: '김영태', mentorTeam: 'GUGY', isCompleted: true },
+      { id: "pair6", mentee: '안승주', menteeTeam: 'LC', job: 'MR', mentor: '윤홍열', mentorTeam: 'BC ADC', isCompleted: true },
+      { id: "pair7", mentee: '이수진', menteeTeam: 'LC', job: 'MR', mentor: '이철오', mentorTeam: 'GUGY', isCompleted: true },
+      { id: "pair8", mentee: '조형진', menteeTeam: 'BC', job: 'MR', mentor: '권성환', mentorTeam: 'GUGY', isCompleted: true }
+    ];
 
-    let app, db, feedbacksRef;
+    let app, db, feedbacksRef, statusRef;
     
     try {
       app = initializeApp(firebaseConfig);
       db = getFirestore(app);
       feedbacksRef = collection(db, "mentoring_feedbacks");
+      statusRef = collection(db, "mentoring_status");
       
-      // 데이터 실시간 불러오기
+      // 1. 상태 실시간 불러오기 (매칭 리스트 탭 & 결과 공유 탭 체크리스트)
+      onSnapshot(statusRef, (snapshot) => {
+        const dbStatus = {};
+        snapshot.forEach(doc => {
+           dbStatus[doc.id] = {
+               isCompleted: doc.data().isCompleted,
+               scheduledDate: doc.data().scheduledDate
+           };
+        });
+
+        let completedCount = 0;
+        
+        // --- A. 결과 공유 탭의 '체크리스트 + 일정등록' 렌더링 ---
+        const checklistEl = document.getElementById('status-checklist');
+        checklistEl.innerHTML = initialMatchings.map(pair => {
+          const statusObj = dbStatus[pair.id] || {};
+          const isDone = statusObj.isCompleted !== undefined ? statusObj.isCompleted : pair.isCompleted;
+          const scheduledDate = statusObj.scheduledDate || '';
+          
+          if(isDone) completedCount++;
+
+          return `
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-white rounded-lg border border-transparent hover:border-emerald-100 transition-colors gap-3 shadow-sm">
+              <div class="flex flex-col gap-1.5">
+                <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                  <span class="font-bold text-gray-800">${pair.mentee}</span>
+                  <span class="text-[10px] text-gray-400">&amp;</span>
+                  <span class="font-bold text-gray-800">${pair.mentor}</span>
+                  <span class="text-[11px] text-gray-400 ml-1 hidden sm:inline-block">(${pair.menteeTeam} / ${pair.mentorTeam})</span>
+                </div>
+                
+                <!-- 예정일 입력 필드 -->
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] font-bold ${isDone ? 'text-gray-400' : 'text-emerald-600'} bg-emerald-50 px-2 py-0.5 rounded">예정일</span>
+                  <input type="date" class="scheduled-date-input text-xs px-2 py-1 border border-gray-200 rounded-md text-gray-700 outline-none focus:border-emerald-400 transition-colors ${isDone ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'bg-white'}" data-id="${pair.id}" value="${scheduledDate}" ${isDone ? 'disabled' : ''} />
+                </div>
+              </div>
+              
+              <!-- 완료 체크박스 -->
+              <label class="cursor-pointer group flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                <span class="text-[11px] font-bold ${isDone ? 'text-emerald-600' : 'text-gray-400 group-hover:text-gray-500'}">${isDone ? '멘토링 완료' : '진행전'}</span>
+                <div class="relative">
+                  <input type="checkbox" class="status-checkbox sr-only" data-id="${pair.id}" ${isDone ? 'checked' : ''} />
+                  <div class="w-6 h-6 border-2 rounded-md ${isDone ? 'bg-emerald-500 border-emerald-500' : 'border-gray-300 group-hover:border-gray-400'} flex items-center justify-center transition-colors shadow-sm">
+                    <i class="ph-bold ph-check text-white text-xs ${isDone ? 'block' : 'hidden'}"></i>
+                  </div>
+                </div>
+              </label>
+            </div>
+          `;
+        }).join('');
+
+        // 현황 카운트 업데이트
+        document.getElementById('completed-count').innerText = completedCount;
+        document.getElementById('total-count').innerText = initialMatchings.length;
+
+        // --- B. 매칭 리스트 탭의 '카드' 렌더링 (보기 전용) ---
+        const matchingListEl = document.getElementById('matching-list');
+        matchingListEl.innerHTML = initialMatchings.map(pair => {
+          const statusObj = dbStatus[pair.id] || {};
+          const isDone = statusObj.isCompleted !== undefined ? statusObj.isCompleted : pair.isCompleted;
+          const scheduledDate = statusObj.scheduledDate || '';
+          
+          return `
+            <div class="relative bg-white p-5 rounded-2xl shadow-sm border ${isDone ? 'border-emerald-200 bg-emerald-50/10' : 'border-gray-100'} flex flex-col justify-between hover:shadow-md transition-shadow">
+              
+              <!-- 상단 상태/예정일 배지 -->
+              <div class="absolute top-3 right-3 flex flex-col items-end gap-1">
+                ${isDone 
+                  ? `<div class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded border border-emerald-200 flex items-center gap-1"><i class="ph-bold ph-check"></i> 완료</div>` 
+                  : scheduledDate 
+                    ? `<div class="bg-orange-50 text-orange-600 text-[10px] font-bold px-2 py-1 rounded border border-orange-200 flex items-center gap-1"><i class="ph-bold ph-calendar-blank"></i> 예정: ${scheduledDate.substring(5)}</div>`
+                    : ''
+                }
+              </div>
+              
+              <div class="flex items-center justify-between mt-3">
+                <div class="flex-1 text-center">
+                  <div class="inline-block px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs font-bold mb-2">Mentee</div>
+                  <div class="font-bold text-lg text-gray-800">${pair.mentee}</div>
+                  <div class="text-xs text-gray-500 mt-1">${pair.menteeTeam} &bull; ${pair.job}</div>
+                </div>
+                <div class="px-3 text-gray-300">
+                  <i class="ph-fill ph-heart ${isDone ? 'text-emerald-300' : 'text-orange-200'} text-xl"></i>
+                </div>
+                <div class="flex-1 text-center">
+                  <div class="inline-block px-2 py-1 bg-orange-50 text-orange-600 rounded text-xs font-bold mb-2">Mentor</div>
+                  <div class="font-bold text-lg text-gray-800">${pair.mentor}</div>
+                  <div class="text-xs text-gray-500 mt-1">${pair.mentorTeam}</div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        // 1) 체크박스(진행완료) 이벤트 바인딩
+        document.querySelectorAll('.status-checkbox').forEach(checkbox => {
+          checkbox.addEventListener('change', async (e) => {
+             const pairId = e.target.getAttribute('data-id');
+             const isChecked = e.target.checked;
+             try {
+                await setDoc(doc(db, "mentoring_status", pairId), { isCompleted: isChecked }, { merge: true });
+             } catch (error) {
+                console.error("상태 업데이트 실패:", error);
+                alert("상태를 변경할 권한이 없거나 오류가 발생했습니다.");
+                e.target.checked = !isChecked; // 권한 없을시 복구
+             }
+          });
+        });
+
+        // 2) 예정일(Date Input) 변경 이벤트 바인딩
+        document.querySelectorAll('.scheduled-date-input').forEach(dateInput => {
+          dateInput.addEventListener('change', async (e) => {
+             const pairId = e.target.getAttribute('data-id');
+             const selectedDate = e.target.value;
+             try {
+                await setDoc(doc(db, "mentoring_status", pairId), { scheduledDate: selectedDate }, { merge: true });
+             } catch (error) {
+                console.error("일정 업데이트 실패:", error);
+                alert("일정을 변경할 권한이 없거나 오류가 발생했습니다.");
+             }
+          });
+        });
+
+      }, (error) => {
+        console.error("상태 데이터 불러오기 에러:", error);
+      });
+
+      // 2. 후기 피드 실시간 불러오기
       const q = query(feedbacksRef, orderBy("createdAt", "desc"));
       onSnapshot(q, (snapshot) => {
         const listEl = document.getElementById('feedback-list');
@@ -391,15 +531,7 @@
                     <span class="font-bold text-gray-800">${fb.name}</span>
                     <span class="text-xs px-2 py-0.5 bg-white border border-gray-200 rounded text-gray-500 font-semibold">${fb.franchise}</span>
                   </div>
-                  
-                  <div class="flex flex-wrap items-center gap-2 mt-1.5">
-                    ${fb.mentoringDate ? `
-                      <span class="text-[11px] font-bold bg-orange-100/80 text-orange-700 px-2 py-0.5 rounded-md flex items-center gap-1 border border-orange-200/50">
-                        <i class="ph ph-calendar-blank"></i> 멘토링일: ${fb.mentoringDate}
-                      </span>` : ''
-                    }
-                    <span class="text-[11px] text-gray-400">게시일: ${createdDateStr}</span>
-                  </div>
+                  <div class="text-[11px] text-gray-400 mt-1">게시일: ${createdDateStr}</div>
                 </div>
               </div>
               <p class="text-gray-700 text-sm mb-3 whitespace-pre-wrap leading-relaxed font-medium">${fb.content}</p>
@@ -408,12 +540,13 @@
           `;
         }).join('');
       }, (error) => {
-        console.error("데이터 불러오기 에러:", error);
+        console.error("피드 데이터 에러:", error);
       });
 
     } catch(e) {
       console.error("Firebase 초기화 에러:", e);
-      document.getElementById('feedback-list').innerHTML = `<p class="text-red-500 text-center p-4 font-bold">⚠️ 데이터베이스 설정 코드를 입력해주세요. ⚠️</p>`;
+      document.getElementById('matching-list').innerHTML = `<p class="col-span-2 text-center py-10 text-red-500 text-sm font-bold">⚠️ 데이터베이스 설정 코드를 입력해주세요. ⚠️</p>`;
+      document.getElementById('status-checklist').innerHTML = `<p class="text-center p-4 text-red-500 text-sm font-bold">⚠️ DB 연동 필요</p>`;
     }
 
     // 이미지 용량 압축 함수
@@ -457,7 +590,6 @@
         await addDoc(feedbacksRef, {
           franchise: document.getElementById('input-franchise').value,
           name: document.getElementById('input-name').value,
-          mentoringDate: document.getElementById('input-date').value, // 멘토링 날짜 추가
           content: document.getElementById('input-content').value,
           image: base64Image,
           createdAt: Date.now()
