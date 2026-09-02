@@ -100,7 +100,7 @@
             </li>
             <li class="flex gap-2 items-start">
               <span class="text-orange-500 mt-0.5">•</span>
-              <span class="flex-1">만남 후 '토닥토닥' 순간을 담은 사진/영상과 간단한 소감을 결과 공유탭에서 공유 부탁드립니다. <br/><span class="text-orange-700/80 text-xs"></span></span>
+              <span class="flex-1">만남 후 '토닥토닥' 순간을 담은 사진/영상과 간단한 소감을 결과 공유 부탁 드립니다. <br/><span class="text-orange-700/80 text-xs">(메일 / 카톡 / Teams 모두 가능하며, '결과 공유' 탭에서 바로 올리실 수도 있습니다.)</span></span>
             </li>
           </ul>
         </div>
@@ -213,9 +213,9 @@
           아래 폼에 입력하시면 동료들과 실시간으로 추억을 나눌 수 있습니다!
         </p>
 
-       
+        
         <div class="border-t border-gray-100 pt-6">
-          <h3 class="text-lg font-bold text-gray-800 mb-5">실시간 후기 남기기</h3>
+          <h3 class="text-lg font-bold text-gray-800 mb-5">토닥토닥 순간 남기기 </h3>
           <form id="submit-form" class="space-y-5">
             <div class="flex flex-col sm:flex-row gap-4">
               <div class="flex-1">
@@ -241,7 +241,7 @@
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-gray-500 mb-2">인증 사진 (선택)</label>
+              <label class="block text-xs font-bold text-gray-500 mb-2">인증 사진</label>
               <input id="input-image" type="file" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 cursor-pointer bg-gray-50 border border-gray-200 rounded-xl" />
             </div>
             
@@ -355,6 +355,7 @@
   messagingSenderId: "10116971851",
   appId: "1:10116971851:web:509900dba810fdb5933cce"
 };
+
     // 초기 매칭 리스트 데이터
     const initialMatchings = [
       { id: "pair1", mentee: '장재우', menteeTeam: 'BC SM', job: 'MKT', mentor: '이하경', mentorTeam: 'GUGY', isCompleted: false },
@@ -398,7 +399,7 @@
 
           return `
             <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-white rounded-lg border border-transparent hover:border-emerald-100 transition-colors gap-3 shadow-sm">
-              <div class="flex flex-col gap-1.5">
+              <div class="flex flex-col gap-2">
                 <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
                   <span class="font-bold text-gray-800">${pair.mentee}</span>
                   <span class="text-[10px] text-gray-400">&amp;</span>
@@ -406,10 +407,17 @@
                   <span class="text-[11px] text-gray-400 ml-1 hidden sm:inline-block">(${pair.menteeTeam} / ${pair.mentorTeam})</span>
                 </div>
                 
-                <!-- 예정일 입력 필드 -->
-                <div class="flex items-center gap-2">
-                  <span class="text-[11px] font-bold ${isDone ? 'text-gray-400' : 'text-emerald-600'} bg-emerald-50 px-2 py-0.5 rounded">예정일</span>
+                <!-- 예정일 입력 필드 (+ 삭제 버튼) -->
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[11px] font-bold ${isDone ? 'text-gray-400' : 'text-emerald-600'} bg-emerald-50 px-2 py-0.5 rounded shrink-0">예정일</span>
                   <input type="date" class="scheduled-date-input text-xs px-2 py-1 border border-gray-200 rounded-md text-gray-700 outline-none focus:border-emerald-400 transition-colors ${isDone ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'bg-white'}" data-id="${pair.id}" value="${scheduledDate}" ${isDone ? 'disabled' : ''} />
+                  
+                  <!-- 일정 취소(초기화) 버튼 -->
+                  ${!isDone && scheduledDate ? `
+                    <button type="button" class="clear-date-btn p-1 text-gray-400 hover:text-red-500 rounded bg-gray-50 hover:bg-red-50 transition-colors shrink-0" data-id="${pair.id}" title="일정 취소">
+                      <i class="ph-bold ph-x text-xs"></i>
+                    </button>
+                  ` : ''}
                 </div>
               </div>
               
@@ -470,7 +478,7 @@
           `;
         }).join('');
 
-        // 1) 체크박스(진행완료) 이벤트 바인딩
+        // 이벤트 바인딩 1: 체크박스(진행완료)
         document.querySelectorAll('.status-checkbox').forEach(checkbox => {
           checkbox.addEventListener('change', async (e) => {
              const pairId = e.target.getAttribute('data-id');
@@ -485,7 +493,7 @@
           });
         });
 
-        // 2) 예정일(Date Input) 변경 이벤트 바인딩
+        // 이벤트 바인딩 2: 예정일 등록 (Input Change)
         document.querySelectorAll('.scheduled-date-input').forEach(dateInput => {
           dateInput.addEventListener('change', async (e) => {
              const pairId = e.target.getAttribute('data-id');
@@ -495,6 +503,19 @@
              } catch (error) {
                 console.error("일정 업데이트 실패:", error);
                 alert("일정을 변경할 권한이 없거나 오류가 발생했습니다.");
+             }
+          });
+        });
+
+        // 이벤트 바인딩 3: 예정일 초기화/삭제 (Clear Button X)
+        document.querySelectorAll('.clear-date-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+             const pairId = e.currentTarget.getAttribute('data-id');
+             try {
+                await setDoc(doc(db, "mentoring_status", pairId), { scheduledDate: "" }, { merge: true });
+             } catch (error) {
+                console.error("일정 취소 실패:", error);
+                alert("일정을 취소할 권한이 없거나 오류가 발생했습니다.");
              }
           });
         });
