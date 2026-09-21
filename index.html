@@ -344,7 +344,7 @@
   <!-- 💡 Firebase 데이터베이스 연동 스크립트 💡 -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, query, orderBy, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
     // 🚨🚨🚨 주변 분께 도움 받으실 때 이 부분을 교체하시면 됩니다! 🚨🚨🚨
     const firebaseConfig = {
@@ -525,6 +525,7 @@
       });
 
       // 2. 후기 피드 실시간 불러오기
+          // 2. 후기 피드 실시간 불러오기
       const q = query(feedbacksRef, orderBy("createdAt", "desc"));
       onSnapshot(q, (snapshot) => {
         const listEl = document.getElementById('feedback-list');
@@ -537,13 +538,21 @@
           return;
         }
 
-        listEl.innerHTML = snapshot.docs.map(doc => {
-          const fb = doc.data();
+        listEl.innerHTML = snapshot.docs.map(fbDoc => {
+          const fb = fbDoc.data();
+          const fbId = fbDoc.id; // 기존 데이터의 고유 ID도 자동으로 불러옵니다.
           const createdDateStr = fb.createdAt ? new Date(fb.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) : '';
           
           return `
-            <div class="bg-gray-50 rounded-xl p-5 border border-gray-100 fade-in">
-              <div class="flex items-center gap-3 mb-3">
+            <div class="bg-gray-50 rounded-xl p-5 border border-gray-100 fade-in relative group">
+              
+              <!-- 🌟 수정/삭제 버튼 추가 -->
+              <div class="absolute top-4 right-4 flex gap-1.5 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                <button type="button" class="edit-fb-btn p-1.5 text-gray-400 hover:text-blue-500 bg-white rounded-md border border-gray-200 shadow-sm" data-id="${fbId}" data-content="${(fb.content || '').replace(/"/g, '&quot;')}"><i class="ph-bold ph-pencil-simple"></i></button>
+                <button type="button" class="delete-fb-btn p-1.5 text-gray-400 hover:text-red-500 bg-white rounded-md border border-gray-200 shadow-sm" data-id="${fbId}"><i class="ph-bold ph-trash"></i></button>
+              </div>
+
+              <div class="flex items-center gap-3 mb-3 pr-16">
                 <div class="bg-orange-100 rounded-full w-10 h-10 flex items-center justify-center shrink-0">
                   <i class="ph-fill ph-user-circle text-orange-500 text-2xl"></i>
                 </div>
@@ -552,7 +561,15 @@
                     <span class="font-bold text-gray-800">${fb.name}</span>
                     <span class="text-xs px-2 py-0.5 bg-white border border-gray-200 rounded text-gray-500 font-semibold">${fb.franchise}</span>
                   </div>
-                  <div class="text-[11px] text-gray-400 mt-1">게시일: ${createdDateStr}</div>
+                  
+                  <div class="flex flex-wrap items-center gap-2 mt-1.5">
+                    ${fb.mentoringDate ? `
+                      <span class="text-[11px] font-bold bg-orange-100/80 text-orange-700 px-2 py-0.5 rounded-md flex items-center gap-1 border border-orange-200/50">
+                        <i class="ph ph-calendar-blank"></i> 멘토링일: ${fb.mentoringDate}
+                      </span>` : ''
+                    }
+                    <span class="text-[11px] text-gray-400">게시일: ${createdDateStr}</span>
+                  </div>
                 </div>
               </div>
               <p class="text-gray-700 text-sm mb-3 whitespace-pre-wrap leading-relaxed font-medium">${fb.content}</p>
@@ -560,9 +577,44 @@
             </div>
           `;
         }).join('');
+
+        // 🌟 수정 버튼 기능
+        document.querySelectorAll('.edit-fb-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const docId = e.currentTarget.getAttribute('data-id');
+            const oldContent = e.currentTarget.getAttribute('data-content');
+            const newContent = prompt("수정할 소감을 입력해주세요:", oldContent);
+            
+            if (newContent !== null && newContent.trim() !== "" && newContent !== oldContent) {
+              try {
+                await updateDoc(doc(db, "mentoring_feedbacks", docId), { content: newContent });
+              } catch(err) {
+                console.error("수정 실패:", err);
+                alert("수정에 실패했습니다.");
+              }
+            }
+          });
+        });
+
+        // 🌟 삭제 버튼 기능
+        document.querySelectorAll('.delete-fb-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const docId = e.currentTarget.getAttribute('data-id');
+            if (confirm("정말 이 후기를 삭제하시겠습니까?\\n(삭제 시 복구할 수 없습니다.)")) {
+              try {
+                await deleteDoc(doc(db, "mentoring_feedbacks", docId));
+              } catch(err) {
+                console.error("삭제 실패:", err);
+                alert("삭제에 실패했습니다.");
+              }
+            }
+          });
+        });
+
       }, (error) => {
         console.error("피드 데이터 에러:", error);
       });
+
 
     } catch(e) {
       console.error("Firebase 초기화 에러:", e);
