@@ -343,7 +343,7 @@
 
   <!-- 💡 Firebase 데이터베이스 연동 스크립트 💡 -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
     import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, query, orderBy, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
     // 🚨🚨🚨 주변 분께 도움 받으실 때 이 부분을 교체하시면 됩니다! 🚨🚨🚨
@@ -525,7 +525,6 @@
       });
 
       // 2. 후기 피드 실시간 불러오기
-          // 2. 후기 피드 실시간 불러오기
       const q = query(feedbacksRef, orderBy("createdAt", "desc"));
       onSnapshot(q, (snapshot) => {
         const listEl = document.getElementById('feedback-list');
@@ -540,16 +539,25 @@
 
         listEl.innerHTML = snapshot.docs.map(fbDoc => {
           const fb = fbDoc.data();
-          const fbId = fbDoc.id; // 기존 데이터의 고유 ID도 자동으로 불러옵니다.
+          const fbId = fbDoc.id;
           const createdDateStr = fb.createdAt ? new Date(fb.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) : '';
           
           return `
             <div class="bg-gray-50 rounded-xl p-5 border border-gray-100 fade-in relative group">
               
-              <!-- 🌟 수정/삭제 버튼 추가 -->
-              <div class="absolute top-4 right-4 flex gap-1.5 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                <button type="button" class="edit-fb-btn p-1.5 text-gray-400 hover:text-blue-500 bg-white rounded-md border border-gray-200 shadow-sm" data-id="${fbId}" data-content="${(fb.content || '').replace(/"/g, '&quot;')}"><i class="ph-bold ph-pencil-simple"></i></button>
-                <button type="button" class="delete-fb-btn p-1.5 text-gray-400 hover:text-red-500 bg-white rounded-md border border-gray-200 shadow-sm" data-id="${fbId}"><i class="ph-bold ph-trash"></i></button>
+              <!-- 🌟 버튼이 데스크탑/모바일 모두 항상 보이도록 수정 -->
+              <div class="absolute top-4 right-4 flex gap-1.5">
+                <button type="button" class="edit-fb-btn p-1.5 text-gray-400 hover:text-blue-500 bg-white rounded-md border border-gray-200 shadow-sm" 
+                  data-id="${fbId}" 
+                  data-franchise="${fb.franchise || ''}" 
+                  data-name="${fb.name || ''}" 
+                  data-date="${fb.mentoringDate || ''}" 
+                  data-content="${(fb.content || '').replace(/"/g, '&quot;')}">
+                  <i class="ph-bold ph-pencil-simple"></i>
+                </button>
+                <button type="button" class="delete-fb-btn p-1.5 text-gray-400 hover:text-red-500 bg-white rounded-md border border-gray-200 shadow-sm" data-id="${fbId}">
+                  <i class="ph-bold ph-trash"></i>
+                </button>
               </div>
 
               <div class="flex items-center gap-3 mb-3 pr-16">
@@ -578,21 +586,27 @@
           `;
         }).join('');
 
-        // 🌟 수정 버튼 기능
+        // 🌟 수정 버튼 클릭 시 폼으로 데이터 불러오기
         document.querySelectorAll('.edit-fb-btn').forEach(btn => {
-          btn.addEventListener('click', async (e) => {
-            const docId = e.currentTarget.getAttribute('data-id');
-            const oldContent = e.currentTarget.getAttribute('data-content');
-            const newContent = prompt("수정할 소감을 입력해주세요:", oldContent);
+          btn.addEventListener('click', (e) => {
+            const t = e.currentTarget;
             
-            if (newContent !== null && newContent.trim() !== "" && newContent !== oldContent) {
-              try {
-                await updateDoc(doc(db, "mentoring_feedbacks", docId), { content: newContent });
-              } catch(err) {
-                console.error("수정 실패:", err);
-                alert("수정에 실패했습니다.");
-              }
-            }
+            // 입력 폼에 기존 데이터 채워넣기
+            document.getElementById('input-franchise').value = t.getAttribute('data-franchise');
+            document.getElementById('input-name').value = t.getAttribute('data-name');
+            document.getElementById('input-date').value = t.getAttribute('data-date');
+            document.getElementById('input-content').value = t.getAttribute('data-content');
+            
+            // 수정 모드 활성화 (고유 ID 임시 저장)
+            window.editingFeedbackId = t.getAttribute('data-id');
+            
+            // 등록 버튼을 '수정 버튼' 디자인으로 변경
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.innerHTML = '<i class="ph-bold ph-pencil-simple text-xl"></i> 후기 수정하기';
+            submitBtn.className = "w-full bg-blue-500 text-white font-bold py-3.5 rounded-xl hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 shadow-sm shadow-blue-500/30";
+            
+            // 작성 폼으로 부드럽게 스크롤 이동
+            document.getElementById('submit-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
           });
         });
 
@@ -611,9 +625,6 @@
           });
         });
 
-      }, (error) => {
-        console.error("피드 데이터 에러:", error);
-      });
 
 
     } catch(e) {
@@ -643,7 +654,7 @@
       });
     }
 
-    // 폼 제출 로직
+     // 폼 제출 로직 (신규 등록 및 전체 수정 기능 통합)
     document.getElementById('submit-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       
@@ -653,38 +664,55 @@
       }
 
       const btn = document.getElementById('submit-btn');
-      btn.innerHTML = `<i class="ph ph-spinner animate-spin text-xl"></i> 업로드 중...`;
+      const isEditing = window.editingFeedbackId ? true : false;
+      btn.innerHTML = `<i class="ph ph-spinner animate-spin text-xl"></i> 처리 중...`;
       btn.disabled = true;
 
       try {
         const imageFile = document.getElementById('input-image').files[0];
         const base64Image = await compressImage(imageFile);
 
-        await addDoc(feedbacksRef, {
+        // 저장할 전체 데이터
+        const dataToSave = {
           franchise: document.getElementById('input-franchise').value,
           name: document.getElementById('input-name').value,
+          mentoringDate: document.getElementById('input-date').value,
           content: document.getElementById('input-content').value,
-          image: base64Image,
-          createdAt: Date.now()
-        });
+        };
 
+        // 새 이미지를 올린 경우에만 이미지 데이터 추가 (수정 시 기존 이미지 보존용)
+        if (base64Image) {
+          dataToSave.image = base64Image;
+        }
+
+        // DB 저장 (수정 or 신규)
+        if (isEditing) {
+          await updateDoc(doc(db, "mentoring_feedbacks", window.editingFeedbackId), dataToSave);
+          window.editingFeedbackId = null; // 수정 모드 해제
+        } else {
+          dataToSave.createdAt = Date.now();
+          await addDoc(feedbacksRef, dataToSave);
+        }
+
+        // 폼 초기화 및 완료 연출
         document.getElementById('submit-form').reset();
-        btn.innerHTML = `<i class="ph-fill ph-check-circle text-xl"></i> 공유 완료!`;
-        btn.classList.replace('bg-orange-500', 'bg-green-500');
+        btn.innerHTML = `<i class="ph-fill ph-check-circle text-xl"></i> 완료!`;
+        btn.className = "w-full bg-green-500 text-white font-bold py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm shadow-green-500/30";
         
         setTimeout(() => {
           btn.innerHTML = '결과 공유하기';
-          btn.classList.replace('bg-green-500', 'bg-orange-500');
+          btn.className = "w-full bg-orange-500 text-white font-bold py-3.5 rounded-xl hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 shadow-sm shadow-orange-500/30";
           btn.disabled = false;
         }, 2000);
 
       } catch (error) {
         console.error("업로드 에러:", error);
-        alert("업로드 중 오류가 발생했습니다. (Firestore 규칙 설정을 확인해주세요)");
-        btn.innerHTML = '결과 공유하기';
+        alert("저장 중 오류가 발생했습니다. (Firestore 규칙 설정을 확인해주세요)");
+        btn.innerHTML = isEditing ? '후기 수정하기' : '결과 공유하기';
         btn.disabled = false;
       }
     });
+
   </script>
 </body>
 </html>
